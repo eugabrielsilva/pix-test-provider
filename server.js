@@ -14,6 +14,11 @@ const PIX_CITY = process.env.PIX_CITY;
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
 const API_TOKEN = process.env.API_TOKEN;
 
+const red = "\x1b[31m";
+const green = "\x1b[32m";
+const yellow = "\x1b[33m";
+const reset = "\x1b[0m";
+
 app.use(express.json());
 
 // Reads data from the JSON file
@@ -23,6 +28,7 @@ const readData = () => {
         const data = fs.readFileSync(DB_FILE, 'utf8');
         return JSON.parse(data);
     } catch(error) {
+        console.error(`${red}Read data error:${reset}`, error);
         return [];
     }
 }
@@ -32,7 +38,7 @@ const writeData = (data) => {
     try {
         fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     } catch(error) {
-        console.error(error);
+        console.error(`${red}Write data error:${reset}`, error);
     }
 }
 
@@ -103,13 +109,15 @@ app.post('/create', authMiddleware, async (req, res) => {
         payments.push(payment);
         writeData(payments);
 
-        console.log('Payment created:', id);
+        console.log(`${green}Payment created:${reset}`, id);
 
         return res.status(201).json({
             status: true,
             data: payment
         });
     } catch(error) {
+        console.error(`${red}Create PIX error:${reset}`, error);
+
         return res.status(500).json({
             status: false,
             error
@@ -169,9 +177,11 @@ app.post('/simulate/:id', authMiddleware, async (req, res) => {
                 })
             });
         } catch(error) {
-            console.log(error);
+            console.error(`${red}Webhook error:${reset}`, error);
         }
     }
+
+    console.log(`${green}Payment simulated:${reset}`, payment.id);
 
     return res.json({
         status: true,
@@ -205,7 +215,7 @@ app.get('/payment/:id', authMiddleware, (req, res) => {
 
 // Webhook test
 app.post('/webhook', (req, res) => {
-    console.log('Webhook received:', req.body);
+    console.log(`${green}Webhook received:${reset}`, req.body);
 
     return res.json({
         status: true,
@@ -215,8 +225,10 @@ app.post('/webhook', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log('\x1b[32m%s\x1b[0m', 'PIX Test Provider v0.1');
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log('API token:', API_TOKEN);
-    console.log('Webhook URL:', WEBHOOK_URL);
+    console.log(`${green}--------------------------------------------------------------------------${reset}`);
+    console.log(`${green}PIX Test Provider v0.1 by Gabriel Silva${reset}`);
+    console.log(`${yellow}Server running on:${reset}`, `http://localhost:${PORT}${reset}`);
+    console.log(`${yellow}API token:${reset}`, API_TOKEN);
+    console.log(`${yellow}Webhook URL:${reset}`, WEBHOOK_URL);
+    console.log(`${green}--------------------------------------------------------------------------${reset}`);
 });
