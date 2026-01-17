@@ -1,8 +1,10 @@
-# PIX Test Provider 💸
+# PIX Test Provider
 
-Este é um provedor de testes simples para simular a criação e o pagamento de cobranças via **PIX Estático**. É ideal para desenvolvedores que precisam testar fluxos de checkout e webhooks sem movimentar dinheiro real.
+Este é um provedor de testes simples para **simular** a criação e o pagamento de cobranças via PIX. É ideal para desenvolvedores que precisam testar fluxos de checkout e webhooks sem movimentar dinheiro real.
 
-## 🚀 Como começar
+**Projeto desenvolvido apenas para testes de pagamentos em ambiente local ou de homologação. São gerados apenas códigos PIX dinâmicos, apenas estáticos. Não deve ser usado em produção ou sistemas reais!**
+
+## Instalação e configuração
 
 1.  **Instale as dependências:**
 
@@ -11,7 +13,7 @@ Este é um provedor de testes simples para simular a criação e o pagamento de 
     ```
 
 2.  **Configure as variáveis de ambiente:**
-    Copie o arquivo `.env.example` para `.env` na raiz do projeto:
+    Copie o arquivo `.env.example` para `.env` na raiz do projeto e configure:
 
     ```env
     # Porta onde rodar o servidor
@@ -20,7 +22,7 @@ Este é um provedor de testes simples para simular a criação e o pagamento de 
     # Bearer token para autenticar nos endpoints da API
     API_TOKEN="seu_token"
 
-    # Chave PIX
+    # Chave PIX de destino
     PIX_KEY="suachavepix@email.com"
 
     # Nome do recebedor
@@ -38,11 +40,11 @@ Este é um provedor de testes simples para simular a criação e o pagamento de 
     npm start
     ```
 
-## 🛠️ Endpoints da API
+## Endpoints
 
-Lembre-se de enviar o header `Authorization: Bearer seu_token` em todas as requisições com o token configurado no `.env`.
+Lembre-se de enviar o header `Authorization: Bearer API_TOKEN` em todas as requisições com o token configurado no `.env`.
 
-### 1. Criar Pagamento
+### Criar Pagamento
 
 `POST /create`
 
@@ -58,14 +60,18 @@ Cria um novo pagamento e retorna os dados do PIX (Copia e Cola e QR Code em Base
 }
 ```
 
-### 2. Consultar Pagamento
+### Consultar Pagamento
 
 `GET /payment/:id`
 
 Retorna os dados do PIX (Copia e Cola e QR Code em Base64) e o status atual.
 
-### 3. Simular Pagamento
+### Simular Pagamento
 
 `POST /simulate/:id`
 
-Altera o status do pagamento para `PAID` e envia uma notificação **POST** para a sua `WEBHOOK_URL` com os detalhes da transação simulando um evento de pagamento real.
+Altera o status do pagamento para `PAID` (pago) e envia uma notificação **POST** para a sua `WEBHOOK_URL` com os detalhes da transação simulando um evento de pagamento real.
+
+## Créditos
+
+Desenvolvido por [Gabriel Silva](https://github.com/eugabrielsilva).

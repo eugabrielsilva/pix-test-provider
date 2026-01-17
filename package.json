@@ -1,8 +1,7 @@
 {
   "name": "pix-test-provider",
   "scripts": {
-    "start": "node server.js",
-    "clear": "rm -rf data.json"
+    "start": "node server.js"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
