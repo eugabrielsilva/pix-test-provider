@@ -1,4 +1,8 @@
-import 'dotenv/config';
+if(process.env.NODE_ENV !== 'production') {
+    const dotenv = await import('dotenv');
+    dotenv.config({quiet: true});
+}
+
 import express from 'express';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
