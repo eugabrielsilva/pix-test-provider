@@ -71,27 +71,33 @@ const authMiddleware = (req, res, next) => {
 
 // Creates new PIX payment
 app.post('/create', authMiddleware, async (req, res) => {
-    const {value, expiresIn, description} = req.body;
+    const {value, expires_in, description} = req.body;
 
-    if(typeof value !== 'number' || typeof expiresIn !== 'number' || typeof description !== 'string') {
+    if(typeof value !== 'number' || typeof expires_in !== 'number' || typeof description !== 'string') {
         return res.status(400).json({
             status: false,
-            error: 'Missing request parameters.'
+            error: 'Invalid request parameters.'
         });
     }
 
     try {
+        const id = crypto.randomUUID().replaceAll('-', '').substring(0, 25);
+
         const pix = createStaticPix({
             merchantName: PIX_NAME,
             merchantCity: PIX_CITY,
             pixKey: PIX_KEY,
             infoAdicional: description,
-            transactionAmount: value / 100
+            transactionAmount: value / 100,
+            txid: id,
         });
 
-        const id = crypto.randomUUID();
+        if(pix.error) {
+            throw Error(pix.message);
+        }
+
         const created_at = new Date();
-        const expires_at = new Date(created_at.getTime() + (expiresIn * 1000));
+        const expires_at = new Date(created_at.getTime() + (expires_in * 1000));
         const qr_code = await pix.toImage();
 
         const payment = {
@@ -120,7 +126,7 @@ app.post('/create', authMiddleware, async (req, res) => {
 
         return res.status(500).json({
             status: false,
-            error
+            error: error.message
         });
     }
 });
@@ -143,7 +149,7 @@ app.post('/simulate/:id', authMiddleware, async (req, res) => {
     if(now > new Date(payment.expires_at)) {
         return res.status(400).json({
             status: false,
-            error: 'Payment already expired.'
+            error: 'Payment expired.'
         });
     }
 

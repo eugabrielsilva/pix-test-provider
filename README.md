@@ -57,7 +57,7 @@ Cria um novo pagamento e retorna os dados do PIX (Copia e Cola e QR Code).
 ```json
 {
   "value": 1500, // valor em centavos
-  "expiresIn": 3600, // prazo de expiração em segundos
+  "expires_in": 3600, // prazo de expiração em segundos
   "description": "Pagamento de Teste" // descrição
 }
 ```
@@ -66,7 +66,7 @@ Cria um novo pagamento e retorna os dados do PIX (Copia e Cola e QR Code).
 
 `GET /payment/:id`
 
-Retorna os dados do PIX e o status atual.
+Retorna os dados do pagamento e o status atual.
 
 ### Simular Pagamento
 
