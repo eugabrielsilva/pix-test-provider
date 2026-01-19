@@ -1,20 +1,17 @@
 if(process.env.NODE_ENV !== 'production') {
-    const dotenv = await import('dotenv');
+    const dotenv = require('dotenv');
     dotenv.config({quiet: true});
 }
 
-import express from 'express';
-import crypto from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {createStaticPix} from 'pix-utils';
+const express = require('express');
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+const {createStaticPix} = require('pix-utils');
 
 const app = express();
 app.use(express.json());
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const DB_FILE = path.join(__dirname, 'data.json');
 
 const PORT = process.env.PORT || 9000;
