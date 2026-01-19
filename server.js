@@ -1,12 +1,18 @@
-require('dotenv').config({quiet: true});
+import 'dotenv/config';
+import express from 'express';
+import crypto from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createStaticPix} from 'pix-utils';
 
-const express = require('express');
 const app = express();
-const crypto = require('node:crypto');
-const fs = require('node:fs');
-const {createStaticPix} = require('pix-utils');
+app.use(express.json());
 
-const DB_FILE = './data.json';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const DB_FILE = path.join(__dirname, 'data.json');
+
 const PORT = process.env.PORT || 9000;
 const PIX_KEY = process.env.PIX_KEY;
 const PIX_NAME = process.env.PIX_NAME;
@@ -19,22 +25,23 @@ const green = "\x1b[32m";
 const yellow = "\x1b[33m";
 const reset = "\x1b[0m";
 
-app.use(express.json());
+let localPayments = [];
 
 // Reads data from the JSON file
-const readData = () => {
-    try {
-        if(!fs.existsSync(DB_FILE)) return [];
-        const data = fs.readFileSync(DB_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch(error) {
-        console.error(`${red}Read data error:${reset}`, error);
-        return [];
+try {
+    if(fs.existsSync(DB_FILE)) {
+        const fileData = fs.readFileSync(DB_FILE, 'utf8');
+        localPayments = JSON.parse(fileData);
     }
+} catch(error) {
+    console.error(`${red}Read data error:${reset}`, error);
 }
+
+const readData = () => localPayments;
 
 // Writes data to the JSON file
 const writeData = (data) => {
+    localPayments = data;
     try {
         fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
     } catch(error) {
@@ -90,11 +97,7 @@ app.post('/create', authMiddleware, async (req, res) => {
             infoAdicional: description,
             transactionAmount: value / 100,
             txid: id,
-        });
-
-        if(pix.error) {
-            throw Error(pix.message);
-        }
+        }).throwIfError();
 
         const created_at = new Date();
         const expires_at = new Date(created_at.getTime() + (expires_in * 1000));
@@ -126,7 +129,11 @@ app.post('/create', authMiddleware, async (req, res) => {
 
         return res.status(500).json({
             status: false,
-            error: error.message
+            error: {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            }
         });
     }
 });

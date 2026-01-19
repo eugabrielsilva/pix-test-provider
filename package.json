@@ -1,5 +1,6 @@
 {
   "name": "pix-test-provider",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
