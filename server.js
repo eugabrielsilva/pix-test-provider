@@ -186,6 +186,8 @@ app.post('/simulate/:id', authMiddleware, async (req, res) => {
                     data: updatedData
                 })
             });
+
+            console.log(`${green}Webhook sent:${reset}`, WEBHOOK_URL);
         } catch(error) {
             console.error(`${red}Webhook error:${reset}`, error);
         }
@@ -196,6 +198,31 @@ app.post('/simulate/:id', authMiddleware, async (req, res) => {
     return res.json({
         status: true,
         data: updatedData
+    });
+});
+
+// List paginated payments
+app.get('/payments', authMiddleware, (req, res) => {
+    const payments = readData().reverse();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const data = payments.slice(startIndex, endIndex);
+    const total_items = payments.length;
+    const total_pages = Math.ceil(total_items / limit);
+
+    return res.json({
+        status: true,
+        data,
+        pagination: {
+            total_items,
+            total_pages,
+            page,
+            limit,
+            has_next_page: page < total_pages,
+            has_previous_page: page > 1
+        }
     });
 });
 

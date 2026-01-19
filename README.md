@@ -62,6 +62,17 @@ Cria um novo pagamento e retorna os dados do PIX (Copia e Cola e QR Code).
 }
 ```
 
+### Listar Pagamentos
+
+`GET /payments`
+
+Listar os pagamentos atuais ordenados a partir do mais recente.
+
+**Query params:**
+
+- `page`: Página atual _(padrão: 1)_
+- `limit`: Limite de resultados por página _(padrão: 10)_
+
 ### Consultar Pagamento
 
 `GET /payment/:id`
