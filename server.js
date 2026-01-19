@@ -1,8 +1,4 @@
-if(process.env.NODE_ENV !== 'production') {
-    const dotenv = require('dotenv');
-    dotenv.config({quiet: true});
-}
-
+require('dotenv').config({quiet: true});
 const express = require('express');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
