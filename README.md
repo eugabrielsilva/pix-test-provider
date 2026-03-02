@@ -33,7 +33,7 @@ Requer Node.js versão 22 ou superior.
     # Cidade do recebedor
     PIX_CITY="Sua Cidade"
 
-    # URL de envio de eventos
+    # URL de envio geral de eventos
     WEBHOOK_URL="http://seu-sistema.com/webhook"
     ```
 
@@ -58,7 +58,8 @@ Cria um novo pagamento e retorna os dados do PIX (Copia e Cola e QR Code).
 {
   "value": 1500, // valor em centavos
   "expires_in": 3600, // prazo de expiração em segundos
-  "description": "Pagamento de Teste" // descrição
+  "description": "Pagamento de Teste", // descrição
+  "notification_url": "http://localhost:9000/webhook" // URL de notificação para este pagamento
 }
 ```
 
@@ -84,6 +85,8 @@ Retorna os dados do pagamento e o status atual.
 `POST /simulate/:id`
 
 Altera o status do pagamento para `PAID` (pago) e envia uma notificação **POST** para a sua `WEBHOOK_URL` com os detalhes da transação simulando um evento de pagamento real.
+
+Caso o pagamento tenha uma `notification_url` definida, uma notificação **POST** também será enviada para esta URL.
 
 ## Créditos
 

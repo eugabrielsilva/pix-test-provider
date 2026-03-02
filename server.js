@@ -75,7 +75,7 @@ const authMiddleware = (req, res, next) => {
 
 // Creates new PIX payment
 app.post('/create', authMiddleware, async (req, res) => {
-    const {value, expires_in, description} = req.body;
+    const {value, expires_in, description, notification_url} = req.body;
 
     if(typeof value !== 'number' || typeof expires_in !== 'number' || typeof description !== 'string') {
         return res.status(400).json({
@@ -108,7 +108,8 @@ app.post('/create', authMiddleware, async (req, res) => {
             qr_code,
             created_at,
             expires_at,
-            status: 'PENDING'
+            status: 'PENDING',
+            notification_url,
         };
 
         const payments = readData();
@@ -176,21 +177,29 @@ app.post('/simulate/:id', authMiddleware, async (req, res) => {
         paid_at: payment.paid_at
     }
 
-    if(WEBHOOK_URL) {
+    const sendWebhook = async (url, data) => {
         try {
-            await fetch(WEBHOOK_URL, {
+            await fetch(url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     event: 'payment.paid',
-                    data: updatedData
+                    data
                 })
             });
 
-            console.log(`${green}Webhook sent:${reset}`, WEBHOOK_URL);
+            console.log(`${green}Webhook sent:${reset}`, url);
         } catch(error) {
             console.error(`${red}Webhook error:${reset}`, error);
         }
+    }
+
+    if(WEBHOOK_URL) {
+        await sendWebhook(WEBHOOK_URL, updatedData);
+    }
+
+    if(payment.notification_url) {
+        await sendWebhook(payment.notification_url, updatedData);
     }
 
     console.log(`${green}Payment simulated:${reset}`, payment.id);
