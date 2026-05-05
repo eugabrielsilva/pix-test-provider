@@ -1,0 +1,8 @@
+services:
+  pix-test-provider:
+    build: .
+    container_name: pix-test-provider
+    volumes:
+      - ./:/app
+    ports:
+      - "9000:9000"
