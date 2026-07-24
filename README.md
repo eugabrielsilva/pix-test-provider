@@ -44,7 +44,7 @@ Requer Node.js versão 22 ou superior.
 
 ## Endpoints
 
-Lembre-se de enviar o header `Authorization: Bearer API_TOKEN` em todas as requisições com o mesmo token configurado no `.env`.
+Lembre-se de enviar o header `Authorization: Bearer <API_TOKEN>` em todas as requisições com o mesmo token configurado no `.env`.
 
 ### Criar Pagamento
 
@@ -56,10 +56,29 @@ Cria um novo pagamento e retorna os dados do PIX (Copia e Cola e QR Code).
 
 ```json
 {
-  "value": 1500, // valor em centavos
+  "value": 1500, // valor em centavos (R$ 15,00 -> 1500)
   "expires_in": 3600, // prazo de expiração em segundos
   "description": "Pagamento de Teste", // descrição
   "notification_url": "http://localhost:9000/webhook" // URL de notificação para este pagamento
+}
+```
+
+**Exemplo de resposta:**
+
+```json
+{
+  "status": true,
+  "data": {
+    "id": "16808cb4fb684129a7ad972ef",
+    "value": 1500,
+    "description": "Pagamento de Teste",
+    "pix_code": "00020126710014br.gov.bcb.pix0114...",
+    "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEU...",
+    "created_at": "2026-07-22T20:30:33.616Z",
+    "expires_at": "2026-07-22T20:35:33.616Z",
+    "status": "PENDING",
+    "notification_url": "http://localhost:9000/webhook"
+  }
 }
 ```
 
@@ -71,8 +90,27 @@ Listar os pagamentos atuais ordenados a partir do mais recente.
 
 **Query params:**
 
-- `page`: Página atual _(padrão: 1)_
-- `limit`: Limite de resultados por página _(padrão: 10)_
+- `?page`: Página atual _(padrão: 1)_
+- `?limit`: Limite de resultados por página _(padrão: 10)_
+
+**Exemplo de resposta:**
+
+```json
+{
+  "status": true,
+  "data": [
+    //payments
+  ],
+  "pagination": {
+    "total_items": 1,
+    "total_pages": 1,
+    "page": 1,
+    "limit": 10,
+    "has_next_page": false,
+    "has_previous_page": false
+  }
+}
+```
 
 ### Consultar Pagamento
 
@@ -87,6 +125,12 @@ Retorna os dados do pagamento e o status atual.
 Altera o status do pagamento para `PAID` (pago) e envia uma notificação **POST** para a sua `WEBHOOK_URL` com os detalhes da transação simulando um evento de pagamento real.
 
 Caso o pagamento tenha uma `notification_url` definida, uma notificação **POST** também será enviada para esta URL.
+
+### Excluir Pagamento
+
+`DELETE /delete/:id`
+
+Exclui um pagamento.
 
 ## Créditos
 

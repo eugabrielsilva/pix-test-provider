@@ -136,6 +136,29 @@ app.post('/create', authMiddleware, async (req, res) => {
     }
 });
 
+// Deletes PIX payment
+app.delete('/delete/:id', authMiddleware, (req, res) => {
+    const payments = readData();
+    const index = payments.findIndex(p => p.id === req.params.id);
+
+    if(index === -1) {
+        return res.status(404).json({
+            status: false,
+            error: 'Payment not found.'
+        });
+    }
+
+    payments.splice(index, 1);
+    writeData(payments);
+
+    console.log(`${green}Payment deleted:${reset}`, req.params.id);
+
+    return res.status().json({
+        status: true,
+        error: 'Payment deleted.'
+    });
+});
+
 // Simulates PIX payment
 app.post('/simulate/:id', authMiddleware, async (req, res) => {
     const payments = readData();
@@ -217,9 +240,18 @@ app.get('/payments', authMiddleware, (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const data = payments.slice(startIndex, endIndex);
     const total_items = payments.length;
     const total_pages = Math.ceil(total_items / limit);
+
+    const data = payments.slice(startIndex, endIndex).map(payment => {
+        const now = new Date();
+        const isExpired = now > new Date(payment.expires_at) && payment.status !== 'PAID';
+
+        return {
+            ...payment,
+            status: isExpired ? 'EXPIRED' : payment.status
+        }
+    });
 
     return res.json({
         status: true,
